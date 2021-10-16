@@ -71,4 +71,20 @@ class User extends Authenticatable
 
     }
 
+
+    public function setNameAttribute($name)
+    {
+        $this->attributes['name'] = strtolower($name);
+    }
+
+    public function setEmailAttribute($email)
+    {
+        $this->attributes['email'] = strtolower($email);
+    }
+
+    public function getNameAttribute($name)
+    {
+        return ucwords($name);
+    }
+
 }
