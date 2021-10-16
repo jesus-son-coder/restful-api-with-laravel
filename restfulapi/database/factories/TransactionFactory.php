@@ -25,18 +25,15 @@ class TransactionFactory extends Factory
     public function definition()
     {
         // On récupère un vendeur dont on sait qu'il vend au moins un produit :
-        // $seller = Seller::has('products')->get()->random();
+        $seller = Seller::has('products')->get()->random();
 
         // On génère un acheteur (buyer) en faisant en sorte qu'il soit différent du vendeur ci-dessus, car un vendeur ne peut acheter son propre produit :
-        //$buyer = User::all()->except($seller->id)->random();
-        $buyer = User::all()->random();
+        $buyer = User::all()->except($seller->id)->random();
 
         return [
             'quantity' => $this->faker->numberBetween(1, 3),
             'buyer_id' => $buyer->id,
-            //'product_id' => $seller->products->random()->id,
-            'product_id' => Product::all()->random()->id,
-
+            'product_id' => $seller->products->random()->id,
         ];
     }
 }
