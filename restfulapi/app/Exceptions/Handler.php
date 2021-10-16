@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use App\Traits\ApiResponser;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Throwable;
 use Illuminate\Validation\ValidationException;
@@ -60,6 +61,10 @@ class Handler extends ExceptionHandler
 
         if($exception instanceof AuthenticationException) {
             return $this->unauthenticated($request, $exception);
+        }
+
+        if($exception instanceof AuthorizationException) {
+            return $this->errorResponse($exception->getMessage(), 403);
         }
 
         return parent::render($request, $exception);
