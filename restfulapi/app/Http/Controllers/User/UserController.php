@@ -75,10 +75,13 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $rules = [
+            // L'emal à modifier doit correspondre à celui de l'utilisateur en cours (d'où "$user->id"):
             'email' => 'email|unique:users,email,' . $user->id,
             'password' => 'min:6|confirmed',
             'admin' => 'in:' . User::ADMIN_USER . ',' . User::REGULAR_USER,
         ];
+
+        $this->validate($request, $rules);
 
         if($request->has('name')) {
             $user->name = $request->name;
@@ -101,6 +104,8 @@ class UserController extends Controller
             $user->admin = $request->admin;
         }
 
+        // On vérifie qu'un champ au moins a été modifié avant de valider l'Update,
+        // Si aucun champ n'a été modifié, on retourne une erreur :
         if(!$user->isDirty()) {
             return response()->json(['error' => 'You need to specify a different value to update', 'code' => 422], 422);
         }
@@ -119,6 +124,10 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        $user->delete();
+
+        return response()->json(['message' => 'User deleted successfully'], 200);
     }
 }
