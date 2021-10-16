@@ -25,12 +25,12 @@ class UserController extends ApiController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(User $user)
     {
-        $user = User::findOrFail($id);
+        // $user = User::findOrFail($id);
         return $this->showOne($user, "Infos of User");
     }
 
