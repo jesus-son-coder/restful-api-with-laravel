@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use App\Traits\ApiResponser;
+use Illuminate\Auth\AuthenticationException;
 use Throwable;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -57,6 +58,10 @@ class Handler extends ExceptionHandler
             return $this->errorResponse("Il n'existe pas de ressource {$modelName} avec l'identifiant spécifié !", 404);
         }
 
+        if($exception instanceof AuthenticationException) {
+            return $this->unauthenticated($request, $exception);
+        }
+
         return parent::render($request, $exception);
     }
 
@@ -73,5 +78,10 @@ class Handler extends ExceptionHandler
         $errors = $e->validator->errors()->getMessages();
 
         return $this->errorResponse($errors, 422);
+    }
+
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        return $this->errorResponse("Unauthenticated", 401);
     }
 }
