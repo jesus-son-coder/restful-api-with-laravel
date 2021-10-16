@@ -9,7 +9,9 @@ use Throwable;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 
 class Handler extends ExceptionHandler
 {
@@ -66,6 +68,10 @@ class Handler extends ExceptionHandler
 
         if($exception instanceof AuthorizationException) {
             return $this->errorResponse($exception->getMessage(), 403);
+        }
+
+        if($exception instanceof MethodNotAllowedHttpException) {
+            return $this->errorResponse('The specified method for the request is invalid', 405);
         }
 
         if($exception instanceof NotFoundHttpException) {
