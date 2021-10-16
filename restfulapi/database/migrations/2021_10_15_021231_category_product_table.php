@@ -18,6 +18,7 @@ class CategoryProductTable extends Migration
             $table->bigInteger('category_id')->unsigned();
             // foreign key :
             $table->bigInteger('product_id')->unsigned();
+            $table->softDeletes();
 
             // foreign keys :
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade')->onUpdate('cascade');
