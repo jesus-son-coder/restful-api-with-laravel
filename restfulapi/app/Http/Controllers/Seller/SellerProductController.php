@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Seller;
 
 use App\Models\User;
 use App\Models\Seller;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ApiController;
-use App\Models\Product;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class SellerProductController extends ApiController
 {
@@ -67,10 +68,53 @@ class SellerProductController extends ApiController
      * @param  \App\Models\Seller  $seller
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Seller $seller)
+    public function update(Request $request, Seller $seller, Product $product)
     {
-        //
+        $rules = [
+            'quantity' => 'integer|min:1',
+            'status' => 'in:' . Product::AVAILABLE_PRODUCT . ',' . Product::UNAVAILABLE_PRODUCT,
+            'image' => 'image',
+        ];
+
+        $this->validate($request, $rules);
+
+        // Vérifier que le Seller est le Propriétaire du Product :
+        $this->checkSeller($seller, $product);
+
+        $product->fill($request->only([
+            'name',
+            'description',
+            'quantity'
+        ]));
+
+        if($request->has('status')) {
+            $product->status = $request->status;
+
+            if($product->isAvailable() && $product->categories()->count() == 0) {
+                return $this->errorResponse('An active Product must have at least one Category', 409);
+            }
+        }
+
+        // Si aucune valeur du Product n'a changé par rapport à ses valeur en Base de données :
+        if($product->isClean()) {
+            // alors pas la peine d'effectuer l'Update :
+            return $this->errorResponse('You need to specify a different value to update', 422);
+        }
+
+        $product->save();
+
+        return $this->showOne($product, "Product updated successfully.");
+
     }
+
+
+    protected function checkSeller(Seller $seller, Product $product)
+    {
+        if($seller->id != $product->seller_id) {
+            throw new HttpException(422, "The specified seller is not the actual seller of the product");
+        }
+    }
+
 
     /**
      * Remove the specified resource from storage.
@@ -80,6 +124,6 @@ class SellerProductController extends ApiController
      */
     public function destroy(Seller $seller)
     {
-        //
+
     }
 }
