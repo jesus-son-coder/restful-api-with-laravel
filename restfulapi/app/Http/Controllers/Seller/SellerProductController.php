@@ -122,8 +122,13 @@ class SellerProductController extends ApiController
      * @param  \App\Models\Seller  $seller
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Seller $seller)
+    public function destroy(Seller $seller, Product $product)
     {
+        // Vérifier que le Seller est le Propriétaire du Product :
+        $this->checkSeller($seller, $product);
 
+        $product->delete();
+
+        return $this->showOne($product, "Product successfully deleted");
     }
 }
