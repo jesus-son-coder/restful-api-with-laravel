@@ -17,6 +17,10 @@ class Category extends Model
         'description'
     ];
 
+    protected $hidden = [
+        'pivot'
+    ];
+
     public function products()
     {
         // the "belongsToMany" relationship is only available
